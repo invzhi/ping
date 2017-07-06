@@ -61,16 +61,18 @@ ping:
 		}
 	}
 
-	fmt.Printf("\n--- %v ping statistics ---\n", hostname)
-	fmt.Printf("%v packets transmitted, %v received, %v%% packet loss, time %vms\n",
-		icmpSeq, received, loss, endTime,
-	)
-	fmt.Printf("rtt min/avg/max/mdev = %v/%.3f/%v/%.3f ms\n",
-		minRTT(rtts),
-		avgRTT(rtts),
-		maxRTT(rtts),
-		mdevRTT(rtts),
-	)
+	if len(rtts) > 0 {
+		fmt.Printf("\n--- %v ping statistics ---\n", hostname)
+		fmt.Printf("%v packets transmitted, %v received, %v%% packet loss, time %vms\n",
+			icmpSeq, received, loss, endTime,
+		)
+		fmt.Printf("rtt min/avg/max/mdev = %v/%.3f/%v/%.3f ms\n",
+			minRTT(rtts),
+			avgRTT(rtts),
+			maxRTT(rtts),
+			mdevRTT(rtts),
+		)
+	}
 }
 
 func ping(ipAddr *net.IPAddr, icmpSeq int, reply chan string, timeout chan string) {
