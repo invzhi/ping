@@ -41,27 +41,33 @@ func main() {
 	startTime := time.Now()
 	var endTime int
 
-ping:
-	for {
-		select {
-		case info := <-reply:
-			received++
-			fmt.Println(info)
-		case info := <-timeout:
-			loss++
-			fmt.Println(info)
-		case <-quit:
-			signal.Stop(quit)
-			endTime = int(time.Since(startTime).Seconds() * 1000)
-			break ping
-		default:
-			go ping(ipAddr, icmpSeq, reply, timeout)
-			icmpSeq++
-			time.Sleep(time.Millisecond * 500)
+	go func() {
+		tick := time.Tick(time.Millisecond * 500)
+
+		ping:
+		for {
+			select {
+				case <- quit:
+					signal.Stop(quit)
+					endTime = int(time.Since(startTime).Seconds() * 1000)
+					break ping
+				case <- tick:
+					go ping(ipAddr, icmpSeq, reply, timeout)
+					icmpSeq++
+			}
 		}
+		time.Sleep(time.Millisecond * 500)
+		close(reply)
+	}()
+
+	for info := range reply {
+		received++
+		fmt.Println(info)
 	}
 
 	if len(rtts) > 0 {
+		loss = icmpSeq - received
+
 		fmt.Printf("\n--- %v ping statistics ---\n", hostname)
 		fmt.Printf("%v packets transmitted, %v received, %v%% packet loss, time %vms\n",
 			icmpSeq, received, loss, endTime,
