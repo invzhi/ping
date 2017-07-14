@@ -17,6 +17,10 @@ import (
 
 var rtts []int
 
+const (
+	ProtocolICMP = 1
+)
+
 func main() {
 	flag.Parse()
 	hostname := flag.Arg(0)
@@ -123,7 +127,7 @@ func ping(ipAddr *net.IPAddr, icmpSeq int, reply chan string, timeout chan strin
 	}
 	rtt := int(time.Since(sendTime).Seconds() * 1000)
 	rtts = append(rtts, rtt)
-	icmpEchoReply, err := icmp.ParseMessage(1, buffer[:n])
+	icmpEchoReply, err := icmp.ParseMessage(ProtocolICMP, buffer[:n])
 	if err != nil {
 		log.Fatal(err)
 	}
