@@ -1,18 +1,18 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"net"
-	"log"
-	"time"
 	"flag"
+	"fmt"
+	"log"
 	"math"
-	"syscall"
+	"net"
+	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
-	"golang.org/x/net/ipv4"
 	"golang.org/x/net/icmp"
+	"golang.org/x/net/ipv4"
 )
 
 var rtts []int
@@ -44,16 +44,16 @@ func main() {
 	go func() {
 		tick := time.Tick(time.Millisecond * 500)
 
-		ping:
+	ping:
 		for {
 			select {
-				case <- quit:
-					signal.Stop(quit)
-					endTime = int(time.Since(startTime).Seconds() * 1000)
-					break ping
-				case <- tick:
-					go ping(ipAddr, icmpSeq, reply, timeout)
-					icmpSeq++
+			case <-quit:
+				signal.Stop(quit)
+				endTime = int(time.Since(startTime).Seconds() * 1000)
+				break ping
+			case <-tick:
+				go ping(ipAddr, icmpSeq, reply, timeout)
+				icmpSeq++
 			}
 		}
 		time.Sleep(time.Millisecond * 500)
@@ -88,12 +88,12 @@ func ping(ipAddr *net.IPAddr, icmpSeq int, reply chan string, timeout chan strin
 	}
 	defer packetConn.Close()
 
-	icmpEchoRequset := icmp.Message {
+	icmpEchoRequset := icmp.Message{
 		Type: ipv4.ICMPTypeEcho,
 		Code: 0,
 		Body: &icmp.Echo{
-			ID: os.Getpid() & 0xffff,
-			Seq: icmpSeq,
+			ID:   os.Getpid() & 0xffff,
+			Seq:  icmpSeq,
 			Data: []byte("HELLO-PING-PING"),
 		},
 	}
@@ -130,7 +130,7 @@ func ping(ipAddr *net.IPAddr, icmpSeq int, reply chan string, timeout chan strin
 
 	switch icmpEchoReply.Type {
 	case ipv4.ICMPTypeEchoReply:
-		reply <- fmt.Sprintf("%v bytes from %v: icmp_seq=%v time=%v ms", n + 20, ipAddr, icmpSeq, rtt)
+		reply <- fmt.Sprintf("%v bytes from %v: icmp_seq=%v time=%v ms", n+20, ipAddr, icmpSeq, rtt)
 	case ipv4.ICMPTypeDestinationUnreachable:
 		reply <- fmt.Sprintf("%v is unreachable", ipAddr)
 	default:
@@ -159,7 +159,7 @@ func maxRTT(rtts []int) int {
 }
 
 func avgRTT(rtts []int) float64 {
-	var avg float64	
+	var avg float64
 	for _, rtt := range rtts {
 		avg += float64(rtt)
 	}
@@ -169,7 +169,7 @@ func avgRTT(rtts []int) float64 {
 func mdevRTT(rtts []int) float64 {
 	var mdev float64
 	for _, rtt := range rtts {
-		mdev += float64(rtt*rtt)
+		mdev += float64(rtt * rtt)
 	}
 	avg := avgRTT(rtts)
 	mdev = mdev/float64(len(rtts)) - avg*avg
