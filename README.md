@@ -1,5 +1,7 @@
 # ping
 
+[![License](https://img.shields.io/github/license/invzhi/ping.svg)](LICENSE)
+
 ICMP ping write by Go
 
 ## get code
